@@ -5,11 +5,48 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <termios.h>
 
 using namespace std;
 
 #define PORT 8080
 #define SERVER_IP "127.0.0.1"
+
+// Function to read password with stars
+string read_password() {
+    string password;
+    char ch;
+    
+    // Disable echo
+    struct termios oldt, newt;
+    tcgetattr(STDIN_FILENO, &oldt);
+    newt = oldt;
+    newt.c_lflag &= ~ECHO;
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+    
+    while (true) {
+        ch = getchar();
+        
+        if (ch == '\n' || ch == '\r') {
+            break;
+        } else if (ch == 127 || ch == 8) { // Backspace
+            if (!password.empty()) {
+                password.pop_back();
+                cout << "\b \b"; // Erase star
+            }
+        } else {
+            password += ch;
+            cout << '*';
+        }
+        cout.flush();
+    }
+    
+    // Restore echo
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+    cout << endl;
+    
+    return password;
+}
 
 bool is_authenticated = false;
 string client_ip = "127.0.0.1";
@@ -85,8 +122,7 @@ int main() {
     
     // Password prompt at startup
     cout << "Password: ";
-    string password;
-    getline(cin, password);
+    string password = read_password();
     
     if (password.empty()) {
         cout << "\nERROR: Password cannot be empty\n";
