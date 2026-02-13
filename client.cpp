@@ -12,12 +12,10 @@ using namespace std;
 #define PORT 8080
 #define SERVER_IP "127.0.0.1"
 
-// Function to read password with stars
 string read_password() {
     string password;
     char ch;
     
-    // Disable echo
     struct termios oldt, newt;
     tcgetattr(STDIN_FILENO, &oldt);
     newt = oldt;
@@ -29,10 +27,10 @@ string read_password() {
         
         if (ch == '\n' || ch == '\r') {
             break;
-        } else if (ch == 127 || ch == 8) { // Backspace
+        } else if (ch == 127 || ch == 8) { 
             if (!password.empty()) {
                 password.pop_back();
-                cout << "\b \b"; // Erase star
+                cout << "\b \b"; 
             }
         } else {
             password += ch;
@@ -41,7 +39,6 @@ string read_password() {
         cout.flush();
     }
     
-    // Restore echo
     tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
     cout << endl;
     
@@ -72,10 +69,8 @@ string send_request(const string& request) {
         return "ERROR: Connection failed. Is server running?\n";
     }
     
-    // Send request
     send(sock, request.c_str(), request.length(), 0);
     
-    // Read response
     string result = "";
     char buffer[4096];
     int bytes;
@@ -120,7 +115,6 @@ int main() {
     cout << "==========================================\n";
     cout << "Server: " << SERVER_IP << ":" << PORT << "\n\n";
     
-    // Password prompt at startup
     cout << "Password: ";
     string password = read_password();
     
@@ -129,7 +123,6 @@ int main() {
         return 1;
     }
     
-    // Try to authenticate with server
     string auth_request = "AUTH " + password;
     string auth_response = send_request(auth_request);
     
@@ -147,7 +140,6 @@ int main() {
         return 1;
     }
     
-    // Main menu loop
     while (true) {
         display_menu();
         
@@ -222,13 +214,11 @@ int main() {
             }
             
         } else if (choice == 3) {
-            // Server status
             request = "STATUS";
             response = send_request(request);
             cout << "\n" << response;
             
         } else if (choice == 4) {
-            // Delete task
             cout << "\nTask ID: ";
             int id;
             cin >> id;
@@ -239,7 +229,6 @@ int main() {
             cout << "\n" << response;
             
         } else if (choice == 5) {
-            // Task info
             cout << "\nTask ID: ";
             int id;
             cin >> id;
@@ -250,7 +239,6 @@ int main() {
             cout << "\n" << response;
             
         } else if (choice == 6) {
-            // Modify task
             cout << "\nTask ID: ";
             int id;
             cin >> id;
